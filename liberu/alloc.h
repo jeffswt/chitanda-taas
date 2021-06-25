@@ -56,7 +56,7 @@ private:
     size_t _size_free;  // remaining non-allocated area
     void *_params;  // bootstrap params, leave null if not encrypting
 public:
-    EruAllocator(size_t default_size, void *params = nullptr);
+    EruAllocator(size_t default_size, void *params);
     size_t size();
     // Increase allocator container size by [size] objects.
     void expand_by(size_t size);

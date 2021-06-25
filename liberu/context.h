@@ -25,8 +25,8 @@
 #ifndef _LIBERU_CONTEXT_H
 #define _LIBERU_CONTEXT_H
 
-#include "liberu_base.h"
-#include "liberu_alloc.h"
+#include "crypto.h"
+#include "alloc.h"
 
 template <typename _T>
 class EruContext {
