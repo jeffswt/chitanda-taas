@@ -1,5 +1,5 @@
 
-// liberu_base.h: basic crypto functions
+// crypto.h: basic crypto functions
 // MIT License
 //
 // Copyright (c) 2021 Geoffrey Tang
@@ -22,8 +22,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-#ifndef _LIBERU_BASE_H
-#define _LIBERU_BASE_H
+#ifndef _LIBERU_CRYPTO_H
+#define _LIBERU_CRYPTO_H
 
 #include <tfhe/tfhe.h>
 #include <memory>
@@ -159,4 +159,4 @@ public:
     EruEnvFhe* env();
 };
 
-#endif  // _LIBERU_BASE_H
+#endif  // _LIBERU_CRYPTO_H

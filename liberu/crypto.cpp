@@ -1,5 +1,5 @@
 
-// liberu_base.cpp: basic crypto functions
+// crypto.cpp: basic crypto functions
 // MIT License
 //
 // Copyright (c) 2021 Geoffrey Tang
@@ -24,7 +24,7 @@
 
 #include <tfhe/tfhe_io.h>
 #include <openssl/rand.h>
-#include "liberu_base.h"
+#include "crypto.h"
 
 #include <sstream>
 

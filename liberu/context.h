@@ -1,5 +1,5 @@
 
-// liberu_context.h: context exposing to users
+// context.h: context exposing to users
 // MIT License
 //
 // Copyright (c) 2021 Geoffrey Tang

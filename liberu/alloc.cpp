@@ -1,5 +1,5 @@
 
-// liberu_alloc.cpp: default allocator
+// alloc.cpp: default self-adaptive allocator
 // MIT License
 //
 // Copyright (c) 2021 Geoffrey Tang
@@ -22,7 +22,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-#include "liberu_alloc.h"
+#include "alloc.h"
 
 
 // Allocated object container

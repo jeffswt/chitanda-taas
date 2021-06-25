@@ -25,8 +25,8 @@
 #ifndef _LIBERU_H
 #define _LIBERU_H
 
-#include "liberu_base.h"
-#include "liberu_alloc.h"
-#include "liberu_context.h"
+#include "crypto.h"
+#include "alloc.h"
+#include "context.h"
 
 #endif  // _LIBERU_H

@@ -1,5 +1,5 @@
 
-// liberu_alloc.h: default allocator
+// alloc.h: default self-adaptive allocator
 // MIT License
 //
 // Copyright (c) 2021 Geoffrey Tang
@@ -25,7 +25,7 @@
 #ifndef _LIBERU_ALLOC_H
 #define _LIBERU_ALLOC_H
 
-#include "liberu_base.h"
+#include "crypto.h"
 #include <vector>
 
 template <typename _T>

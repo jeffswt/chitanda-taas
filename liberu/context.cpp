@@ -1,5 +1,5 @@
 
-// liberu_context.cpp: context exposing to users
+// context.cpp: context exposing to users
 // MIT License
 //
 // Copyright (c) 2021 Geoffrey Tang
@@ -22,7 +22,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-#include "liberu_context.h"
+#include "context.h"
 
 
 template <typename _T>
