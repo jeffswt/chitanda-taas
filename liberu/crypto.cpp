@@ -123,62 +123,6 @@ EruData EruKey::cloud() {
     return _extract_sstream_data(stream);
 }
 
-// Environment base class definitions
-
-template <typename _T>
-_T* EruEnv<_T>::malloc(size_t size) { return nullptr; }
-
-template <typename _T>
-void EruEnv<_T>::mfree(_T* ptr, size_t size) {}
-
-template <typename _T>
-void EruEnv<_T>::lval(_T *r, const bool a) {}
-
-template <typename _T>
-void EruEnv<_T>::ldup(_T *r, const _T *a) {}
-
-template <typename _T>
-void EruEnv<_T>::lnot(_T *r, const _T *a) {}
-
-template <typename _T>
-void EruEnv<_T>::land(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::lor(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::lnand(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::lnor(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::lxor(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::lxnor(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::landyn(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::landny(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::loryn(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::lorny(_T *r, const _T *a, const _T *b) {}
-
-template <typename _T>
-void EruEnv<_T>::lifelse(_T *r, const _T *a, const _T *b, const _T *c) {}
-
-template <typename _T>
-void EruEnv<_T>::encrypt(_T *r, const bool a) {}
-
-template <typename _T>
-bool EruEnv<_T>::decrypt(const _T *a) { return false; }
-
 // Raw environment
 
 bool* EruEnvPlain::malloc(size_t size) {

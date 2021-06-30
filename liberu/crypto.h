@@ -65,24 +65,25 @@ class EruEnv {
     // Provides a trait for logical arithmetic environment. Also supporting
     // envryption and decryption.
 public:
-    virtual _T* malloc(size_t size);  // allocate memory
-    virtual void mfree(_T* ptr, size_t size);  // free memory
-    virtual void lval(_T *r, const bool a);  // r = true / false
-    virtual void ldup(_T *r, const _T *a);  // r = a
-    virtual void lnot(_T *r, const _T *a);  // r = !a
-    virtual void land(_T *r, const _T *a, const _T *b);  // r =  a && b
-    virtual void lor(_T *r, const _T *a, const _T *b);  // r = a || b
-    virtual void lnand(_T *r, const _T *a, const _T *b);  // r = !(a && b)
-    virtual void lnor(_T *r, const _T *a, const _T *b);  // r = !(a || b)
-    virtual void lxor(_T *r, const _T *a, const _T *b);  // r = a ^ b
-    virtual void lxnor(_T *r, const _T *a, const _T *b);  // r = !(a ^ b)
-    virtual void landyn(_T *r, const _T *a, const _T *b);  // r = a && !b
-    virtual void landny(_T *r, const _T *a, const _T *b);  // r = !a && b
-    virtual void loryn(_T *r, const _T *a, const _T *b);  // r = a || !b
-    virtual void lorny(_T *r, const _T *a, const _T *b);  // r = !a || b
-    virtual void lifelse(_T *r, const _T *a, const _T *b, const _T *c);  // mux
-    virtual void encrypt(_T *r, const bool a);  // bool -> _T
-    virtual bool decrypt(const _T *a);  // _T -> bool
+    virtual _T* malloc(size_t size) { return nullptr; }  // allocate memory
+    virtual void mfree(_T* ptr, size_t size) {}  // free memory
+    virtual void lval(_T *r, const bool a) {}  // r = true / false
+    virtual void ldup(_T *r, const _T *a) {}  // r = a
+    virtual void lnot(_T *r, const _T *a) {}  // r = !a
+    virtual void land(_T *r, const _T *a, const _T *b) {}  // r =  a && b
+    virtual void lor(_T *r, const _T *a, const _T *b) {}  // r = a || b
+    virtual void lnand(_T *r, const _T *a, const _T *b) {}  // r = !(a && b)
+    virtual void lnor(_T *r, const _T *a, const _T *b) {}  // r = !(a || b)
+    virtual void lxor(_T *r, const _T *a, const _T *b) {}  // r = a ^ b
+    virtual void lxnor(_T *r, const _T *a, const _T *b) {}  // r = !(a ^ b)
+    virtual void landyn(_T *r, const _T *a, const _T *b) {}  // r = a && !b
+    virtual void landny(_T *r, const _T *a, const _T *b) {}  // r = !a && b
+    virtual void loryn(_T *r, const _T *a, const _T *b) {}  // r = a || !b
+    virtual void lorny(_T *r, const _T *a, const _T *b) {}  // r = !a || b
+    virtual void lifelse(_T *r, const _T *a, const _T *if_a,
+        const _T *if_not_a) {}  // r = a ? if_a : if_not_a
+    virtual void encrypt(_T *r, const bool a) {}  // bool -> _T
+    virtual bool decrypt(const _T *a) { return false; }  // _T -> bool
 };
 
 class EruEnvPlain : public EruEnv<bool> {

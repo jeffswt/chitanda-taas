@@ -7,15 +7,27 @@ LDFLAGS = -g
 LOADLIBES =
 LDLIBS = -ltfhe-spqlios-fma -lcrypto
 
-# target := liberu
-modules := crypto alloc context main
-modules_objs := $(foreach mod, $(modules), $(mod).o)
+target := build/eru
+modules := crypto alloc main
+modules_objs := $(foreach mod, $(modules), build/$(mod).o)
 
-all: $(modules_objs)
-	$(CXX) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS)
+all: makedirs link
 
-%.o: %.cpp
+link: $(modules_objs)
+	$(CXX) $(LDFLAGS) $^ -o $(target) $(LOADLIBES) $(LDLIBS)
+
+makedirs:
+	mkdir -p build/
+
+build/%.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
+
+run:
+	./$(target)
+
+debug:
+	gdb ./$(target)
 
 clean:
 	rm -f $(modules_objs)
+	rm -rf build
