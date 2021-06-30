@@ -28,8 +28,9 @@
 #include <tfhe/tfhe.h>
 #include <memory>
 
+#include "utils.h"
 
-typedef std::string EruData;
+
 typedef LweSample EruGate;
 class EruKey;
 template <typename _T> class EruEnv;

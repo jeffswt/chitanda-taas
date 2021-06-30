@@ -22,20 +22,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-#include <tfhe/tfhe_io.h>
 #include <openssl/rand.h>
-#include "crypto.h"
-
 #include <sstream>
+#include <tfhe/tfhe_io.h>
 
+#include "crypto.h"
+#include "utils.h"
 
-EruData _extract_sstream_data(std::stringstream &stream) {
-    EruData result;
-    int ch;
-    while ((ch = stream.get()) != EOF)
-        result += (char)ch;
-    return result;
-}
+using namespace _EruHazmat;
+
 
 class _TFheGateBootstrappingParameterSetDeleter {
 public:
@@ -114,13 +109,13 @@ const TFheGateBootstrappingCloudKeySet* EruKey::cloud_raw() {
 EruData EruKey::secret() {
     std::stringstream stream;
     export_tfheGateBootstrappingSecretKeySet_toStream(stream, secret_raw());
-    return _extract_sstream_data(stream);
+    return dump_sstream(stream);
 }
 
 EruData EruKey::cloud() {
     std::stringstream stream;
     export_tfheGateBootstrappingCloudKeySet_toStream(stream, cloud_raw());
-    return _extract_sstream_data(stream);
+    return dump_sstream(stream);
 }
 
 // Raw environment
@@ -303,7 +298,7 @@ EruData EruEnvFhe::bexport(EruGate *a) {
     auto params = _session->params();
     std::stringstream stream;
     export_gate_bootstrapping_ciphertext_toStream(stream, a, params);
-    return _extract_sstream_data(stream);
+    return dump_sstream(stream);
 }
 
 void EruEnvFhe::bimport(EruGate *r, const EruData &a) {

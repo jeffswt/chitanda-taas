@@ -25,6 +25,7 @@
 #ifndef _LIBERU_H
 #define _LIBERU_H
 
+#include "utils.h"
 #include "crypto.h"
 #include "alloc.h"
 #include "context.h"

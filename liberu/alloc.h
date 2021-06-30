@@ -25,8 +25,9 @@
 #ifndef _LIBERU_ALLOC_H
 #define _LIBERU_ALLOC_H
 
-#include "crypto.h"
 #include <vector>
+
+#include "crypto.h"
 
 
 /// THERE BE DRAGONS!
