@@ -28,6 +28,7 @@
 #include "crypto.h"
 #include "alloc.h"
 
+
 template <typename _T>
 class EruContext {
 private:
@@ -35,18 +36,51 @@ private:
     std::unique_ptr<EruAllocator<_T>> __allocator;
     std::unique_ptr<EruEnv<_T>> __env;  // when __session is unavailable
 public:
-    EruContext(int min_lambda);
+    EruContext(int min_lambda) {
+        __session = nullptr;
+        __allocator = std::unique_ptr<EruAllocator<_T>>(new EruAllocator<_T>(
+            16, nullptr));
+        __env = std::unique_ptr<EruEnv<_T>>((EruEnv<_T>*)new EruEnvPlain());
+    }
     // Medium-level interfaces that you really shouldn't touch
     // unless you know what you're doing
-    EruSession* _session();
-    EruAllocator<_T>* _allocator();
-    EruEnv<_T>* _env();
+    EruSession* _session() {
+        return __session.get();
+    }
+    EruAllocator<_T>* _allocator() {
+        return __allocator.get();
+    }
+    EruEnv<_T>* _env() {
+        if (__session != nullptr)
+            return (EruEnv<_T>*)__session.get()->env();
+        return __env.get();
+    }
     // Key management
-    void gen_secret_key();
-    void set_secret_key(EruData key);
-    void set_cloud_key(EruData key);
-    EruData get_secret_key();
-    EruData get_cloud_key();
+    void gen_secret_key() {
+        if (__session != nullptr)
+            __session.get()->generate_key();
+    }
+    void set_secret_key(EruData key) {
+        if (__session != nullptr)
+            __session.get()->set_key(EruKey::from_secret(key));
+    }
+    void set_cloud_key(EruData key) {
+        if (__session != nullptr)
+            __session.get()->set_key(EruKey::from_cloud(key));
+    }
+    EruData get_secret_key() {
+        if (__session != nullptr)
+            return __session.get()->get_key().secret();
+        return "";
+    }
+    EruData get_cloud_key() {
+        if (__session != nullptr)
+            return __session.get()->get_key().cloud();
+        return "";
+    }
 };
+
+template <>
+EruContext<EruGate>::EruContext(int min_lambda);
 
 #endif  // _LIBERU_CONTEXT_H

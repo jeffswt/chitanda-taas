@@ -36,7 +36,9 @@ namespace _EruHazmat {
     _T* allocator_pool_creator(size_t size, void *data) {
         return new _T[size];
     }
-    
+    template <>
+    EruGate* allocator_pool_creator<EruGate>(size_t size, void *data);
+
     /// Low-level memory deleters. Automatically executed on allocator unscope
     template <typename _T>
     class AllocatorEntryDeleter {
@@ -45,6 +47,14 @@ namespace _EruHazmat {
         void operator() (_T *ptr) {
             free(ptr);
         }
+    };
+    template <>
+    class AllocatorEntryDeleter<EruGate> {
+    private:
+        size_t _size;
+    public:
+        AllocatorEntryDeleter(size_t size);
+        void operator() (EruGate *ptr);
     };
 }
 

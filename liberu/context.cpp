@@ -24,14 +24,6 @@
 
 #include "context.h"
 
-
-template <typename _T>
-EruContext<_T>::EruContext(int min_lambda) {
-    __session = nullptr;
-    __allocator = std::unique_ptr<EruAllocator<_T>>(new EruAllocator<_T>(
-        16, nullptr));
-    __env = std::unique_ptr<EruEnv<_T>>((EruEnv<_T>*)new EruEnvPlain());
-}
 template <>
 EruContext<EruGate>::EruContext(int min_lambda) {
     __session = std::unique_ptr<EruSession>(new EruSession(min_lambda));
@@ -39,53 +31,4 @@ EruContext<EruGate>::EruContext(int min_lambda) {
         new EruAllocator<EruGate>(16, __session.get()->params())
     );
     __env = nullptr;
-}
-
-template <typename _T>
-EruSession* EruContext<_T>::_session() {
-    return __session.get();
-}
-
-template <typename _T>
-EruAllocator<_T>* EruContext<_T>::_allocator() {
-    return __allocator.get();
-}
-
-template <typename _T>
-EruEnv<_T>* EruContext<_T>::_env() {
-    if (__session != nullptr)
-        return (EruEnv<_T>*)__session.get()->env();
-    return __env.get();
-}
-
-template <typename _T>
-void EruContext<_T>::gen_secret_key() {
-    if (__session != nullptr)
-        __session.get()->generate_key();
-}
-
-template <typename _T>
-void EruContext<_T>::set_secret_key(EruData key) {
-    if (__session != nullptr)
-        __session.get()->set_key(EruKey::from_secret(key));
-}
-
-template <typename _T>
-void EruContext<_T>::set_cloud_key(EruData key) {
-    if (__session != nullptr)
-        __session.get()->set_key(EruKey::from_cloud(key));
-}
-
-template <typename _T>
-EruData EruContext<_T>::get_secret_key() {
-    if (__session != nullptr)
-        return __session.get()->get_key().secret();
-    return "";
-}
-
-template <typename _T>
-EruData EruContext<_T>::get_cloud_key() {
-    if (__session != nullptr)
-        return __session.get()->get_key().cloud();
-    return "";
 }

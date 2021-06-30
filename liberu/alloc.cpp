@@ -26,18 +26,14 @@
 
 
 template <>
-class _EruHazmat::AllocatorEntryDeleter<EruGate> {
-private:
-    size_t _size;
-public:
-    AllocatorEntryDeleter(size_t size) : _size(size) {}
-    void operator() (EruGate *ptr) {
-        delete_gate_bootstrapping_ciphertext_array(_size, ptr);
-    }
-};
-
-template <>
 EruGate* _EruHazmat::allocator_pool_creator<EruGate>(size_t size, void *data) {
     auto params = (TFheGateBootstrappingParameterSet*)data;
     return new_gate_bootstrapping_ciphertext_array(size, params);
+}
+
+_EruHazmat::AllocatorEntryDeleter<EruGate>::AllocatorEntryDeleter(
+    size_t size) : _size(size) {}
+
+void _EruHazmat::AllocatorEntryDeleter<EruGate>::operator() (EruGate *ptr) {
+    delete_gate_bootstrapping_ciphertext_array(_size, ptr);
 }
