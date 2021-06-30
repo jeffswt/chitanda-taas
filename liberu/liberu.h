@@ -29,5 +29,6 @@
 #include "crypto.h"
 #include "alloc.h"
 #include "context.h"
+#include "type_bool.h"
 
 #endif  // _LIBERU_H
