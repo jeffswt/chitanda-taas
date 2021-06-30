@@ -82,17 +82,41 @@ public:
         _ctx->_env()->lval(_value.ptr(), value);
         return *this;
     }
+    // Unary operations
+    #define eru_bool_unary_op(op, env_op)                                     \
+    EruBool<_T> op () {                                                       \
+        EruBits<_T> result = _ctx->allocate(1);                               \
+        _ctx->_env()->env_op(result.ptr(), _value.ptr());                     \
+        return EruBool<_T>(_ctx, result);                                     \
+    }
+    eru_bool_unary_op(operator !, lnot);
+    eru_bool_unary_op(operator ~, lnot);
+    #undef eru_bool_unary_op
     // Binary operations.
-    EruBool<_T> operator && (EruBool<_T> &other) {
-        EruBits<_T> result = _ctx->allocate(1);
-        _ctx->_env()->land(result.ptr(), _value.ptr(), other._value.ptr());
-        return EruBool<_T>(_ctx, result);
+    #define eru_bool_binary_op(op, env_op)                                    \
+    EruBool<_T> op (EruBool<_T> &other) {                                     \
+        EruBits<_T> result = _ctx->allocate(1);                               \
+        _ctx->_env()->env_op(result.ptr(), _value.ptr(), other._value.ptr()); \
+        return EruBool<_T>(_ctx, result);                                     \
     }
-    EruBool<_T> operator || (EruBool<_T> &other) {
-        EruBits<_T> result = _ctx->allocate(1);
-        _ctx->_env()->lor(result.ptr(), _value.ptr(), other._value.ptr());
-        return EruBool<_T>(_ctx, result);
-    }
+    eru_bool_binary_op(operator &&, land);
+    eru_bool_binary_op(operator ||, lor);
+    eru_bool_binary_op(operator ^, lxor);
+    eru_bool_binary_op(operator &, land);
+    eru_bool_binary_op(operator |, lor);
+    eru_bool_binary_op(operator ==, lxnor);
+    eru_bool_binary_op(operator !=, lxor);
+    #undef eru_bool_binary_op
+    // EruBool<_T> operator && (EruBool<_T> &other) {
+    //     EruBits<_T> result = _ctx->allocate(1);
+    //     _ctx->_env()->land(result.ptr(), _value.ptr(), other._value.ptr());
+    //     return EruBool<_T>(_ctx, result);
+    // }
+    // EruBool<_T> operator || (EruBool<_T> &other) {
+    //     EruBits<_T> result = _ctx->allocate(1);
+    //     _ctx->_env()->lor(result.ptr(), _value.ptr(), other._value.ptr());
+    //     return EruBool<_T>(_ctx, result);
+    // }
 };
 
 #endif  // _LIBERU_TYPE_BOOL
