@@ -67,6 +67,7 @@ private:
     _T *_field;
     size_t __size, __chunk, __offset;
 public:
+    EruBits() : _field(nullptr), __size(0), __chunk(0), __offset(0) {}
     EruBits(_T *field, size_t size, size_t chunk, size_t offset) :
         _field(field), __size(size), __chunk(chunk), __offset(offset) {}
     size_t _size() {
@@ -78,13 +79,9 @@ public:
     size_t _offset() {
         return __offset;
     }
-    _T* foo() {
-        _T *p = new _T();
-        return p;
-    }
     /// Retrieve contained pointer.
     /// @return Pointer to delegated object.
-    _T* ptr() {
+    _T* ptr() const {
         return _field;
     }
 };
