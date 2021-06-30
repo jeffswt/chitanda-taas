@@ -110,10 +110,13 @@ public:
     /// Get number of allocated elements.
     /// @return The number of allocated elements with allocate().
     size_t size() {
-        return _size;
+        return _size - _size_free;
     }
-    /// Increase allocator container size by [size] objects.
+    /// Increase allocator container size by at least [size] objects. When
+    /// the given size is too small, the pool size will double.
     void expand_by(size_t size) {
+        if (size < _size)
+            size = _size;
         // low-level allocate
         _T *ptr = _EruHazmat::allocator_pool_creator<_T>(size, _params);
         auto deleter = _EruHazmat::AllocatorEntryDeleter<_T>(size);
@@ -151,6 +154,7 @@ public:
                     else
                         conseq_empty += 1;
                 }
+                offset--;
                 // if current chunk satisfies, mark done
                 if (conseq_empty >= target_size) {
                     found = true;
