@@ -84,6 +84,8 @@ public:
         const _T *if_not_a) {}  // r = a ? if_a : if_not_a
     virtual void encrypt(_T *r, const bool a) {}  // bool -> _T
     virtual bool decrypt(const _T *a) { return false; }  // _T -> bool
+    virtual EruData bexport(_T *a) { return ""; }  // export to EruData
+    virtual void bimport(_T *r, const EruData &a) {}  // import from EruData
 };
 
 class EruEnvPlain : public EruEnv<bool> {
@@ -106,6 +108,8 @@ public:
     void lifelse(bool *r, const bool *a, const bool *b, const bool *c);
     void encrypt(bool *r, const bool a);
     bool decrypt(const bool *a);
+    EruData bexport(bool *a);
+    void bimport(bool *r, const EruData &a);
 };
 
 class EruEnvFhe : public EruEnv<EruGate> {
@@ -134,6 +138,8 @@ public:
     void lifelse(EruGate *r, const EruGate *a, const EruGate *b, const EruGate *c);
     void encrypt(EruGate *r, const bool a);
     bool decrypt(const EruGate *a);
+    EruData bexport(EruGate *a);
+    void bimport(EruGate *r, const EruData &a);
 };
 
 class EruSession {

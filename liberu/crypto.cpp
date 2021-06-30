@@ -198,6 +198,17 @@ bool EruEnvPlain::decrypt(const bool *a) {
     return *a;
 }
 
+EruData EruEnvPlain::bexport(bool *a) {
+    EruData s;
+    s += *a == true ? '1' : '0';
+    return s;
+}
+
+void EruEnvPlain::bimport(bool *r, const EruData &a) {
+    if (a.length() > 0)
+        *r = a[0] == '1';
+}
+
 // Encrypted FHE environment
 
 TFheGateBootstrappingCloudKeySet* EruEnvFhe::_key() {
@@ -286,6 +297,20 @@ void EruEnvFhe::encrypt(EruGate *r, const bool a) {
 
 bool EruEnvFhe::decrypt(const EruGate *a) {
     return bootsSymDecrypt(a, _session->get_key().secret_raw()) != 0;
+}
+
+EruData EruEnvFhe::bexport(EruGate *a) {
+    auto params = _session->params();
+    std::stringstream stream;
+    export_gate_bootstrapping_ciphertext_toStream(stream, a, params);
+    return _extract_sstream_data(stream);
+}
+
+void EruEnvFhe::bimport(EruGate *r, const EruData &a) {
+    auto params = _session->params();
+    std::stringstream stream;
+    stream.write(a.c_str(), a.length());
+    import_gate_bootstrapping_ciphertext_fromStream(stream, r, params);
 }
 
 // Session manager
