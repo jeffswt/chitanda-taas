@@ -78,6 +78,13 @@ public:
             return __session.get()->get_key().cloud();
         return "";
     }
+    // Memory management
+    EruBits<_T> allocate(size_t size) {
+        return __allocator.get()->allocate(size);
+    }
+    void free(EruBits<_T> ptr) {
+        __allocator.get()->free(ptr);
+    }
 };
 
 template <>
