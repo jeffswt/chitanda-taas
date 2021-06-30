@@ -8,7 +8,7 @@ LOADLIBES =
 LDLIBS = -ltfhe-spqlios-fma -lcrypto
 
 target := build/eru
-modules := crypto alloc context main utils
+modules := utils crypto alloc context main
 modules_objs := $(foreach mod, $(modules), build/$(mod).o)
 
 all: makedirs link
