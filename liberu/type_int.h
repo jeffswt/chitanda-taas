@@ -153,6 +153,12 @@ public:
         _ctx->free(carry);
         return EruIntGeneral<_T, _Size>(_ctx, res);
     }
+    EruIntGeneral<_T, _Size>& operator += (EruIntGeneral<_T, _Size> &other) {
+        auto res = *this + other;
+        _value = res._value;
+        res.active = false;
+        return *this;
+    }
     /// Subtraction.
     EruIntGeneral<_T, _Size> operator - (EruIntGeneral<_T, _Size> &other) {
         EruBits<_T> res = _ctx->allocate(_Size);
@@ -180,6 +186,12 @@ public:
         _ctx->free(borrow);
         return EruIntGeneral<_T, _Size>(_ctx, res);
     }
+    EruIntGeneral<_T, _Size>& operator -= (EruIntGeneral<_T, _Size> &other) {
+        auto res = *this - other;
+        _value = res._value;
+        res.active = false;
+        return *this;
+    }
     /// Negate value.
     EruIntGeneral<_T, _Size> operator - () {
         EruBits<_T> res = _ctx->allocate(_Size);
@@ -196,6 +208,60 @@ public:
         }
         _ctx->free(flag);
         return EruIntGeneral<_T, _Size>(_ctx, res);
+    }
+    /// Left-shift (equiv. *2)
+    EruIntGeneral<_T, _Size> operator << (int64_t bits) {
+        if (bits < 0)
+            return *this >> (-bits);
+        EruBits<_T> res = _ctx->allocate(_Size);
+        auto env = _ctx->_env();
+        auto a = _ptr(), b = res.ptr();
+        for (size_t i = _Size; i >= 1 && i >= bits + 1; i--)
+            env->ldup(b + (i - 1), a + (i - bits - 1));
+        for (size_t i = bits; i >= 1; i--)
+            env->lval(b + (i - 1), false);
+        return EruIntGeneral<_T, _Size>(_ctx, res);
+    }
+    EruIntGeneral<_T, _Size>& operator <<= (int64_t bits) {
+        if (bits < 0) {
+            *this >>= (-bits);
+            return *this;
+        }
+        auto env = _ctx->_env();
+        auto a = _ptr();
+        for (size_t i = _Size; i >= 1 && i >= bits + 1; i--)
+            env->ldup(a + (i - 1), a + (i - bits - 1));
+        for (size_t i = bits; i >= 1; i--)
+            env->lval(a + (i - 1), false);
+        return *this;
+    }
+    /// Right-shift (equiv. /2)
+    EruIntGeneral<_T, _Size> operator >> (int64_t bits) {
+        if (bits < 0)
+            return *this << (-bits);
+        EruBits<_T> res = _ctx->allocate(_Size);
+        auto env = _ctx->_env();
+        auto a = _ptr(), b = res.ptr();
+        size_t i;
+        for (i = 0; i + bits < _Size; i++)
+            env->ldup(b + i, a + i + bits);
+        for (; i < _Size; i++)
+            env->ldup(b + i, a + (_Size - 1));
+        return EruIntGeneral<_T, _Size>(_ctx, res);
+    }
+    EruIntGeneral<_T, _Size> operator >>= (int64_t bits) {
+        if (bits < 0) {
+            *this <<= (-bits);
+            return *this;
+        }
+        auto env = _ctx->_env();
+        auto a = _ptr();
+        size_t i;
+        for (i = 0; i + bits < _Size; i++)
+            env->ldup(a + i, a + i + bits);
+        for (; i + 1 < _Size; i++)
+            env->ldup(a + i, a + (_Size - 1));
+        return *this;
     }
 };
 
