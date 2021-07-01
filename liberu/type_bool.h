@@ -26,6 +26,10 @@ private:
             throw std::runtime_error("attempting cross-context arithmetic");
     }
 public:
+    /// Get delegated pointer. Dangerous!
+    _T* _ptr() const {
+        return _value.ptr();
+    }
     /// Raw constructor. Value undetermined.
     EruBool(EruContext<_T> *ctx) : _ctx(ctx), _active(true) {
         _value = _ctx->allocate(1);
@@ -37,7 +41,7 @@ public:
     /// EruBool this(other);
     EruBool(const EruBool<_T> &other) : _ctx(other._ctx), _active(true) {
         _value = _ctx->allocate(1);
-        _ctx->_env()->ldup(_value.ptr(), other._value.ptr());
+        _ctx->_env()->ldup(_ptr(), other._ptr());
     }
     /// Copy constructor. Will not copy itself.
     /// EruBool this = other;
@@ -45,7 +49,7 @@ public:
         if (this == *other)
             return *this;
         _check_sibling(&other);
-        _ctx->_env()->ldup(_value.ptr(), other._value.ptr());
+        _ctx->_env()->ldup(_ptr(), other._ptr());
         return *this;
     }
     /// Move constructor.
@@ -65,28 +69,28 @@ public:
     }
     /// Encrypt & decrypt
     void encrypt(const bool value) {
-        _ctx->_env()->encrypt(_value.ptr(), value);
+        _ctx->_env()->encrypt(_ptr(), value);
     }
     bool decrypt() {
-        return _ctx->_env()->decrypt(_value.ptr());
+        return _ctx->_env()->decrypt(_ptr());
     }
     /// Import & export
     void bimport(const EruData &data) {
-        _ctx->_env()->bimport(_value.ptr(), data);
+        _ctx->_env()->bimport(_ptr(), data);
     }
     EruData bexport() {
-        return _ctx->_env()->bexport(_value.ptr());
+        return _ctx->_env()->bexport(_ptr());
     }
     /// Sets constant value to value.
     EruBool<_T>& operator = (const bool value) {
-        _ctx->_env()->lval(_value.ptr(), value);
+        _ctx->_env()->lval(_ptr(), value);
         return *this;
     }
     // Unary operations
     #define eru_bool_unary_op(op, env_op)                                     \
     EruBool<_T> op () {                                                       \
         EruBits<_T> result = _ctx->allocate(1);                               \
-        _ctx->_env()->env_op(result.ptr(), _value.ptr());                     \
+        _ctx->_env()->env_op(result.ptr(), _ptr());                           \
         return EruBool<_T>(_ctx, result);                                     \
     }
     eru_bool_unary_op(operator !, lnot);
@@ -96,7 +100,7 @@ public:
     #define eru_bool_binary_op(op, env_op)                                    \
     EruBool<_T> op (EruBool<_T> &other) {                                     \
         EruBits<_T> result = _ctx->allocate(1);                               \
-        _ctx->_env()->env_op(result.ptr(), _value.ptr(), other._value.ptr()); \
+        _ctx->_env()->env_op(result.ptr(), _ptr(), other._ptr());             \
         return EruBool<_T>(_ctx, result);                                     \
     }
     eru_bool_binary_op(operator &&, land);
@@ -107,16 +111,6 @@ public:
     eru_bool_binary_op(operator ==, lxnor);
     eru_bool_binary_op(operator !=, lxor);
     #undef eru_bool_binary_op
-    // EruBool<_T> operator && (EruBool<_T> &other) {
-    //     EruBits<_T> result = _ctx->allocate(1);
-    //     _ctx->_env()->land(result.ptr(), _value.ptr(), other._value.ptr());
-    //     return EruBool<_T>(_ctx, result);
-    // }
-    // EruBool<_T> operator || (EruBool<_T> &other) {
-    //     EruBits<_T> result = _ctx->allocate(1);
-    //     _ctx->_env()->lor(result.ptr(), _value.ptr(), other._value.ptr());
-    //     return EruBool<_T>(_ctx, result);
-    // }
 };
 
 #endif  // _LIBERU_TYPE_BOOL
