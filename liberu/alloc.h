@@ -25,7 +25,8 @@
 #ifndef _LIBERU_ALLOC_H
 #define _LIBERU_ALLOC_H
 
-#include <vector>
+#include <map>
+#include <stack>
 
 #include "crypto.h"
 
@@ -65,19 +66,12 @@ template <typename _T>
 class EruBits {
 private:
     _T *_field;
-    size_t __size, __chunk, __offset;
+    size_t __size;
 public:
-    EruBits() : _field(nullptr), __size(0), __chunk(0), __offset(0) {}
-    EruBits(_T *field, size_t size, size_t chunk, size_t offset) :
-        _field(field), __size(size), __chunk(chunk), __offset(offset) {}
+    EruBits() : _field(nullptr), __size(0) {}
+    EruBits(_T *field, size_t size) : _field(field), __size(size) {}
     size_t _size() {
         return __size;
-    }
-    size_t _chunk() {
-        return __chunk;
-    }
-    size_t _offset() {
-        return __offset;
     }
     /// Retrieve contained pointer.
     /// @return Pointer to delegated object.
@@ -91,100 +85,64 @@ public:
 template <typename _T>
 class EruAllocator {
 private:
-    std::vector<std::pair<size_t, std::shared_ptr<_T>>> _pool;  // chunks
-    std::vector<size_t> _pool_free;  // free size per chunk
-    std::vector<std::vector<bool>> _pool_used;  // used blocks per chunk
-    size_t _size;  // allocator pool size
-    size_t _size_free;  // remaining non-allocated area
+    /// The pool ensures no stack is empty at any time.
+    std::map<size_t, std::stack<_T*>> _pool;  // size > stack
+    /// This map holds of currently allocated objects.
+    std::map<_T*, size_t> _pool_used;
+    size_t _size;
     void *_params;  // bootstrap params, leave null if not encrypting
+    _T* _pool_get(size_t size) {
+        _T *ptr;
+        if (_pool.find(size) != _pool.end()) {
+            ptr = _pool[size].top();
+            _pool[size].pop();
+            if (_pool[size].empty())
+                _pool.erase(size);
+        } else {
+            ptr = _EruHazmat::allocator_pool_creator<_T>(size, _params);
+        }
+        _pool_used[ptr] = size;
+        return ptr;
+    }
+    void _pool_put(_T *ptr, size_t size) {
+        if (_pool.find(size) == _pool.end())
+            _pool[size] = std::stack<_T*>();
+        _pool[size].push(ptr);
+        _pool_used.erase(ptr);
+    }
 public:
-    EruAllocator(size_t default_size, void *params) {
+    EruAllocator(void *params) {
         _pool.clear();
-        _pool_free.clear();
-        _pool_used.clear();
         _size = 0;
-        _size_free = 0;
         _params = params;
-        expand(default_size);
+    }
+    ~EruAllocator() {
+        for (auto &pr : _pool) {
+            auto deleter = _EruHazmat::AllocatorEntryDeleter<_T>(pr.first);
+            while (!pr.second.empty()) {
+                deleter(pr.second.top());
+                pr.second.pop();
+            }
+        }
+        for (auto &pr : _pool_used) {
+            _EruHazmat::AllocatorEntryDeleter<_T>(pr.second)(pr.first);
+        }
     }
     /// Get number of allocated elements.
     /// @return The number of allocated elements with allocate().
     size_t size() {
-        return _size - _size_free;
-    }
-    /// Increase allocator container size by at least [size] objects. When
-    /// the given size is too small, the pool size will double.
-    void expand_by(size_t size) {
-        if (size < _size)
-            size = _size;
-        // low-level allocate
-        _T *ptr = _EruHazmat::allocator_pool_creator<_T>(size, _params);
-        auto deleter = _EruHazmat::AllocatorEntryDeleter<_T>(size);
-        _pool.push_back(std::make_pair(size, std::shared_ptr<_T>(ptr, deleter)));
-        _pool_free.push_back(size);
-        _pool_used.push_back(std::vector<bool>(size, false));
-        // update flags
-        _size += size;
-        _size_free += size;
-    }
-    /// Increase allocator container size up to target_size objects. Pool will
-    /// not shrink if given target size is less than actual size.
-    void expand(size_t target_size) {
-        if (target_size <= _size)
-            return ;
-        expand_by(target_size - _size);
+        return _size;
     }
     /// Allocates consequent memory objects.
-    /// @param target_size: number of consequent objects to allocate.
+    /// @param size: number of consequent objects to allocate.
     /// @return Delegate EruBits object to allocated array.
-    EruBits<_T> allocate(size_t target_size) {
-        // attempts to find consecutive empty blocks
-        bool found = false;
-        size_t chunk = 0, offset = 0;
-        if (_size_free >= target_size)
-            for (; chunk < _pool.size(); chunk++) {
-                if (_pool_free[chunk] < target_size)
-                    continue;
-                // scan area
-                size_t conseq_empty = 0;  // count of consecutive non-used blocks
-                for (offset = 0; offset < target_size && conseq_empty <
-                        target_size; offset++) {
-                    if (_pool_used[chunk][offset])
-                        conseq_empty = 0;
-                    else
-                        conseq_empty += 1;
-                }
-                offset--;
-                // if current chunk satisfies, mark done
-                if (conseq_empty >= target_size) {
-                    found = true;
-                    break;
-                }
-            }
-        // if no such is found, allocate new chunk
-        if (!found) {
-            chunk = _pool.size();
-            offset = 0;
-            expand_by(target_size);
-        }
-        // mark blocks as used, also maintaining flags
-        for (size_t i = 0; i < target_size; i++)
-            _pool_used[chunk][offset + i] = true;
-        _pool_free[chunk] -= target_size;
-        _size_free -= target_size;
-        // give this to the caller
-        _T *ptr = _pool[chunk].second.get() + offset;
-        return EruBits<_T>(ptr, target_size, chunk, offset);
+    EruBits<_T> allocate(size_t size) {
+        _T *ptr = _pool_get(size);
+        return EruBits<_T>(ptr, size);
     }
     /// Free allocated object for later use. They will remain in pool anyway.
     void free(EruBits<_T> ptr) {
-        size_t size = ptr._size(), chunk = ptr._chunk(),
-            offset = ptr._offset();
-        for (size_t i = 0; i < ptr._size(); i++)
-            _pool_used[chunk][offset + i] = false;
-        // does not really free those blocks anyway
-        _pool_free[chunk] += size;
-        _size_free += size;
+        _pool_put(ptr.ptr(), ptr._size());
     }
 };
 

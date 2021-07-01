@@ -39,7 +39,7 @@ public:
     EruContext(int min_lambda) {
         __session = nullptr;
         __allocator = std::unique_ptr<EruAllocator<_T>>(new EruAllocator<_T>(
-            16, nullptr));
+            nullptr));
         __env = std::unique_ptr<EruEnv<_T>>((EruEnv<_T>*)new EruEnvPlain());
     }
     // Medium-level interfaces that you really shouldn't touch

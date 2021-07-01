@@ -28,7 +28,7 @@ template <>
 EruContext<EruGate>::EruContext(int min_lambda) {
     __session = std::unique_ptr<EruSession>(new EruSession(min_lambda));
     __allocator = std::unique_ptr<EruAllocator<EruGate>>(
-        new EruAllocator<EruGate>(16, __session.get()->params())
+        new EruAllocator<EruGate>(__session.get()->params())
     );
     __env = nullptr;
 }
