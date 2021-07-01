@@ -1,6 +1,8 @@
 
 #include "utils.h"
 
+#include <iomanip>
+
 
 EruData _EruHazmat::dump_sstream(std::stringstream &stream) {
     EruData result;
@@ -45,4 +47,20 @@ std::vector<EruData> _EruHazmat::binobjlist_decode(const EruData &data) {
         buffer.clear();
     }
     return result;
+}
+
+std::ostream& _EruHazmat::print_hex_box(std::ostream &out, std::string msg) {
+    for (int i = 0; i < msg.length(); i++) {
+        if (i % 32 == 0)
+            out << "     ";
+        else if (i % 32 == 16)
+            out << "   ";
+        else
+            out << " ";
+        int val = (int)msg[i] & 0xff;
+        out << std::setfill('0') << std::setw(2) << std::hex << val;
+        if (i % 32 == 31 || i + 1 == msg.length())
+            out << "\n";
+    }
+    return out;
 }
