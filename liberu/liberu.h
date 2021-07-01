@@ -31,5 +31,6 @@
 #include "context.h"
 #include "type_bool.h"
 #include "type_int.h"
+#include "type_float.h"
 
 #endif  // _LIBERU_H
