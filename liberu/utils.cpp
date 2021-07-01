@@ -15,7 +15,7 @@ EruData _EruHazmat::dump_sstream(std::stringstream &stream) {
 /// data := any binary string
 /// length := [0xff] // <num> <length>, nums are stored in little-endian
 /// num := [0x00] .. [0xfe], stored in base-255
-EruData binobjlist_encode(const std::vector<EruData>& objs) {
+EruData _EruHazmat::binobjlist_encode(const std::vector<EruData>& objs) {
     EruData result;
     for (auto &obj : objs) {
         // encode length
@@ -29,18 +29,18 @@ EruData binobjlist_encode(const std::vector<EruData>& objs) {
     return result;
 }
 
-std::vector<EruData> binobjlist_decode(const EruData &data) {
+std::vector<EruData> _EruHazmat::binobjlist_decode(const EruData &data) {
     std::vector<EruData> result;
     EruData buffer;
     for (int i = 0; i < data.length(); ) {
         uint64_t len = 0, pwr = 1;
-        for (; data[i] != 0xff; i++) {
-            len += (uint64_t)data[i] * pwr;
+        for (; i < data.length() && data[i] != (char)0xff; i++) {
+            len += ((uint64_t)data[i] & 0xff) * pwr;
             pwr *= 255;
         }
         i++;
-        for (int j = 0; j < len; i++, j++)
-            buffer += result[i];
+        for (int j = 0; i < data.length() && j < len; i++, j++)
+            buffer += data[i];
         result.push_back(buffer);
         buffer.clear();
     }
