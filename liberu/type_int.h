@@ -102,7 +102,7 @@ public:
         for (size_t i = 0; i < 64 && i < _Size; i++)
             if (env->decrypt(p + i))
                 result |= (uint64_t)1 << i;
-        return static_cast<int64_t>(result);
+        return *(int64_t*)(&result);
     }
     /// Import & export
     void bimport(const EruData &data) {
