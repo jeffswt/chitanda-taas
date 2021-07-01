@@ -67,7 +67,7 @@ public:
     /// Copy constructor. Will not copy itself.
     /// EruIntGeneral this = other;
     EruIntGeneral<_T, _Size>& operator = (EruIntGeneral<_T, _Size> &other) {
-        if (this == *other)
+        if (this == &other)
             return *this;
         _check_sibling(&other);
         auto env = _ctx->_env();
@@ -127,6 +127,7 @@ public:
     }
     /// Addition.
     EruIntGeneral<_T, _Size> operator + (EruIntGeneral<_T, _Size> &other) {
+        _check_sibling(&other);
         EruBits<_T> res = _ctx->allocate(_Size);
         EruBits<_T> carry = _ctx->allocate(3);  // 0 stores the data
         auto env = _ctx->_env();
@@ -154,13 +155,17 @@ public:
         return EruIntGeneral<_T, _Size>(_ctx, res);
     }
     EruIntGeneral<_T, _Size>& operator += (EruIntGeneral<_T, _Size> &other) {
+        _check_sibling(&other);
         auto res = *this + other;
+        _free();
         _value = res._value;
-        res.active = false;
+        _active = true;
+        res._active = false;
         return *this;
     }
     /// Subtraction.
     EruIntGeneral<_T, _Size> operator - (EruIntGeneral<_T, _Size> &other) {
+        _check_sibling(&other);
         EruBits<_T> res = _ctx->allocate(_Size);
         EruBits<_T> borrow = _ctx->allocate(2);  // 0 stores the data
         auto env = _ctx->_env();
@@ -187,9 +192,12 @@ public:
         return EruIntGeneral<_T, _Size>(_ctx, res);
     }
     EruIntGeneral<_T, _Size>& operator -= (EruIntGeneral<_T, _Size> &other) {
+        _check_sibling(&other);
         auto res = *this - other;
+        _free();
         _value = res._value;
-        res.active = false;
+        _active = true;
+        res._active = false;
         return *this;
     }
     /// Negate value.
