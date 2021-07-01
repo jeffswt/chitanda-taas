@@ -300,9 +300,20 @@ public:
         res._active = false;
         return *this;
     }
+    /// Logical binary operators
+    #define eru_int_binary_op(op, env_op)                                     \
+    EruIntGeneral<_T, _Size> op (EruIntGeneral<_T, _Size> &other) {           \
+        EruBits<_T> res = _ctx->allocate(_Size);                              \
+        auto env = _ctx->_env();                                              \
+        auto a = _ptr(), b = other._ptr(), c = res.ptr();                     \
+        for (size_t i = 0; i < _Size; i++)                                    \
+            env->env_op(c + i, a + i, b + i);                                 \
+        return EruIntGeneral<_T, _Size>(_ctx, res);                           \
+    }
+    eru_int_binary_op(operator &, land);
+    eru_int_binary_op(operator |, lor);
+    eru_int_binary_op(operator ^, lxor);
+    #undef eru_int_binary_op
 };
-
-// template <typename _T>
-// class EruInt : EruIntGeneral<_T, 64> {};
 
 #endif  // _LIBERU_TYPE_INT
