@@ -30,5 +30,6 @@
 #include "alloc.h"
 #include "context.h"
 #include "type_bool.h"
+#include "type_int.h"
 
 #endif  // _LIBERU_H
