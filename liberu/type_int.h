@@ -271,6 +271,35 @@ public:
             env->ldup(a + i, a + (_Size - 1));
         return *this;
     }
+    /// Multiply!
+    EruIntGeneral<_T, _Size> operator * (EruIntGeneral<_T, _Size> &other) {
+        _check_sibling(&other);
+        // using two's complement mean's that we won't need to care about
+        // signs during the calculation
+        EruIntGeneral<_T, _Size> res(_ctx);
+        EruIntGeneral<_T, _Size> tmp(_ctx);
+        auto env = _ctx->_env();
+        auto p1 = _ptr();
+        res = 0;
+        for (size_t i = 0; i < _Size; i++) {
+            tmp = other;
+            tmp <<= i;
+            auto p2 = tmp._ptr();
+            for (size_t j = 0; j < _Size; j++)
+                env->land(p2 + j, p2 + j, p1 + i);
+            res += tmp;
+        }
+        return res;
+    }
+    EruIntGeneral<_T, _Size>& operator *= (EruIntGeneral<_T, _Size> &other) {
+        _check_sibling(&other);
+        auto res = *this * other;
+        _free();
+        _value = res._value;
+        _active = true;
+        res._active = false;
+        return *this;
+    }
 };
 
 // template <typename _T>
