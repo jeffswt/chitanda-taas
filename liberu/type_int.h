@@ -30,13 +30,13 @@ private:
         auto env = _ctx->_env();
         auto p = _ptr();
         if (value >= 0) {
-            for (size_t i = 0; i < 63; i++)
+            for (size_t i = 0; i < 63 && i < _Size; i++)
                 env->lval(p + i, (value & (1ll << i)) ? true : false);
             for (size_t i = 63; i < _Size; i++)
                 env->lval(p + i, false);
         } else {
             uint64_t *uvalue = (uint64_t*)&value;
-            for (size_t i = 0; i < 64; *uvalue >>= 1, i++)
+            for (size_t i = 0; i < 64 && i < _Size; *uvalue >>= 1, i++)
                 env->lval(p + i, (*uvalue & 1) ? true : false);
             for (size_t i = 64; i < _Size; i++)
                 env->lval(p + i, true);
@@ -93,7 +93,20 @@ public:
     }
     /// Encrypt & decrypt
     void encrypt(const int64_t value) {
-        _assign(value);
+        auto env = _ctx->_env();
+        auto p = _ptr();
+        if (value >= 0) {
+            for (size_t i = 0; i < 63 && i < _Size; i++)
+                env->encrypt(p + i, (value & (1ll << i)) ? true : false);
+            for (size_t i = 63; i < _Size; i++)
+                env->encrypt(p + i, false);
+        } else {
+            uint64_t *uvalue = (uint64_t*)&value;
+            for (size_t i = 0; i < 64 && i < _Size; *uvalue >>= 1, i++)
+                env->encrypt(p + i, (*uvalue & 1) ? true : false);
+            for (size_t i = 64; i < _Size; i++)
+                env->encrypt(p + i, true);
+        }
     }
     int64_t decrypt() {
         uint64_t result = 0;
@@ -287,6 +300,7 @@ public:
             auto p2 = tmp._ptr();
             for (size_t j = 0; j < _Size; j++)
                 env->land(p2 + j, p2 + j, p1 + i);
+            printf("  operating on (%lu/%lu)\n", i, _Size);
             res += tmp;
         }
         return res;
@@ -317,6 +331,8 @@ public:
 };
 
 /// Basic integer definitions.
+#define EruInt8(_T) EruIntGeneral<_T, 8>
+#define EruInt16(_T) EruIntGeneral<_T, 16>
 #define EruInt32(_T) EruIntGeneral<_T, 32>
 #define EruInt64(_T) EruIntGeneral<_T, 64>
 #define EruInt128(_T) EruIntGeneral<_T, 128>
