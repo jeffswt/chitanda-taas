@@ -316,4 +316,11 @@ public:
     #undef eru_int_binary_op
 };
 
+/// Basic integer definitions.
+#define EruInt32(_T) EruIntGeneral<_T, 32>
+#define EruInt64(_T) EruIntGeneral<_T, 64>
+#define EruInt128(_T) EruIntGeneral<_T, 128>
+#define EruInt(_T) EruIntGeneral<_T, 32>
+#define EruLong(_T) EruIntGeneral<_T, 64>
+
 #endif  // _LIBERU_TYPE_INT
